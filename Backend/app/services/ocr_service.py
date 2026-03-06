@@ -73,7 +73,7 @@ def _ocr_easyocr(image: np.ndarray, source_lang: str) -> List[TextRegion]:
         "ja": ["ja", "en"],
         "ko": ["ko", "en"],
         "zh": ["ch_sim", "en"],
-        "auto": ["en", "ja", "ko"],
+        "auto": ["ja", "en"], # EasyOCR ne supporte pas ja+ko en même temps
     }
     langs = lang_map.get(source_lang, ["en"])
 

@@ -171,7 +171,7 @@ class TranslationPipeline:
                 page_url = self._upload_page(out_path, page_index)
                 return PageResult(
                     page_index=page_index, filename=filename, status="skipped",
-                    translated_image_path=out_path, translated_image_url=page_url,
+                    translated_image_path=out_path, image_url=page_url,
                     processing_time_ms=int((time.time() - start) * 1000),
                 ), out_path
 
@@ -210,8 +210,9 @@ class TranslationPipeline:
 
             return PageResult(
                 page_index=page_index, filename=filename, status="success",
-                text_regions=regions, translated_image_path=out_path,
-                translated_image_url=page_url, processing_time_ms=elapsed,
+                text_regions=regions, text_regions_count=len(regions),
+                translated_image_path=out_path,
+                image_url=page_url, processing_time_ms=elapsed,
             ), out_path
 
         except Exception as e:

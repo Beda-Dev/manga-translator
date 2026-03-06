@@ -12,6 +12,8 @@ Comportement selon le mode de stockage:
 
 import logging
 import os
+import re
+import traceback
 from pathlib import Path
 
 from fastapi import APIRouter, HTTPException
@@ -64,8 +66,9 @@ async def download_package(job_id: str):
         logger.info(f"☁️  Redirection Supabase: {job.output_url}")
         return RedirectResponse(url=job.output_url, status_code=302)
 
-    # ── Mode local: servir le fichier depuis le disque ────────────────────────
+    logger.info(f"📥 Téléchargement local demandé: {job.output_path}")
     if not job.output_path or not os.path.exists(job.output_path):
+        logger.error(f"❌ Fichier non trouvé sur le serveur: {job.output_path}")
         raise HTTPException(
             status_code=404,
             detail=(
@@ -74,17 +77,26 @@ async def download_package(job_id: str):
             ),
         )
 
-    ext = Path(job.output_path).suffix.lower()
-    media_type = MIME_TYPES.get(ext, "application/octet-stream")
-    filename = f"translated_{Path(job.filename).stem}{ext}"
-    logger.info(f"📥 Téléchargement local: {filename}")
+    try:
+        ext = Path(job.output_path).suffix.lower()
+        media_type = MIME_TYPES.get(ext, "application/octet-stream")
+        
+        # Sécurisation du nom de fichier pour les headers HTTP
+        clean_stem = re.sub(r'[^\w\s-]', '', Path(job.filename).stem)
+        clean_stem = re.sub(r'[-\s]+', '_', clean_stem).strip('_')
+        filename = f"translated_{clean_stem}{ext}"
+        
+        logger.info(f"✅ Envoi du fichier: {filename} ({media_type})")
 
-    return FileResponse(
-        path=job.output_path,
-        media_type=media_type,
-        filename=filename,
-        headers={"Content-Disposition": f'attachment; filename="{filename}"'},
-    )
+        return FileResponse(
+            path=job.output_path,
+            media_type=media_type,
+            filename=filename,
+        )
+    except Exception as e:
+        logger.error(f"💥 Erreur lors de l'envoi du package: {str(e)}")
+        logger.error(traceback.format_exc())
+        raise HTTPException(status_code=500, detail=f"Erreur interne lors du téléchargement: {str(e)}")
 
 
 @router.get("/{job_id}/page/{page_index}", summary="Télécharger une page individuelle")
@@ -113,18 +125,28 @@ async def download_page(job_id: str, page_index: int):
         )
 
     # ── Mode Supabase ─────────────────────────────────────────────────────────
-    if storage_service.is_cloud and page_result.translated_image_url:
-        return RedirectResponse(url=page_result.translated_image_url, status_code=302)
+    if storage_service.is_cloud and page_result.image_url:
+        return RedirectResponse(url=page_result.image_url, status_code=302)
 
     # ── Mode local ────────────────────────────────────────────────────────────
     img_path = page_result.translated_image_path
-    if not img_path or not os.path.exists(img_path):
-        raise HTTPException(status_code=404, detail=f"Image page {page_index} introuvable")
+    logger.debug(f"🖼️  Image demandée page {page_index}: {img_path}")
+
+    if not img_path:
+        logger.warning(f"⚠️  Image non générée pour la page {page_index}")
+        raise HTTPException(status_code=404, detail=f"Image page {page_index} pas encore prête ou en erreur")
+
+    if not os.path.exists(img_path):
+        logger.error(f"❌ Fichier image manquant: {img_path}")
+        raise HTTPException(status_code=404, detail=f"Image page {page_index} introuvable sur le serveur")
 
     ext = Path(img_path).suffix.lower()
+    media_type = MIME_TYPES.get(ext, "image/png")
+    logger.info(f"✅ Servir page {page_index}: {img_path} ({media_type})")
+
     return FileResponse(
         path=img_path,
-        media_type=MIME_TYPES.get(ext, "image/png"),
+        media_type=media_type,
         filename=f"page_{page_index + 1:04d}{ext}",
     )
 
@@ -145,7 +167,7 @@ async def list_pages(job_id: str):
     pages_info = []
     for page in sorted(job.pages, key=lambda p: p.page_index):
         # URL d'image directe pour le frontend (aperçu)
-        image_url = page.translated_image_url or f"/download/{job_id}/page/{page.page_index}"
+        image_url = page.image_url or f"/download/{job_id}/page/{page.page_index}"
 
         pages_info.append({
             "page_index": page.page_index,

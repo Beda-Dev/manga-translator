@@ -78,7 +78,7 @@ CREATE TABLE IF NOT EXISTS public.translation_pages (
 
     -- URLs des images
     original_image_url  TEXT,   -- Image originale (optionnel)
-    translated_image_url TEXT,  -- Image traduite — URL Supabase Storage
+    image_url           TEXT,   -- Image traduite — URL Supabase Storage
 
     -- Données OCR/traduction
     text_regions_count  INTEGER NOT NULL DEFAULT 0,

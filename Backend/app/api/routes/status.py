@@ -31,13 +31,25 @@ async def get_job_status(job_id: str):
     if not job:
         raise HTTPException(status_code=404, detail=f"Job {job_id} introuvable")
 
+    # On enrichit les résultats des pages avec les URLs pour le frontend
+    mapped_pages = []
+    for p in job.pages:
+        p_copy = p.model_copy()
+        # image_url est déjà l'URL Supabase si cloud, sinon on met la route locale
+        if not p_copy.image_url:
+            p_copy.image_url = f"/download/{job_id}/page/{p.page_index}"
+        
+        # download_url est toujours la route locale qui gère Redirect ou FileResponse
+        p_copy.download_url = f"/download/{job_id}/page/{p.page_index}"
+        mapped_pages.append(p_copy)
+
     return StatusResponse(
         job_id=job.job_id,
         status=job.status,
         progress=job.progress,
         total_pages=job.total_pages,
         processed_pages=job.processed_pages,
-        pages=job.pages,
+        pages=mapped_pages,
         output_url=job.output_url,
         error_message=job.error_message,
         created_at=job.created_at,

@@ -61,6 +61,8 @@ docker rmi manga-translator-backend -f && docker-compose up --build backend
 # Forcer rebuild tout
 docker rmi manga-translator-frontend manga-translator-backend -f && docker-compose up --build
 
+docker rmi manga-translator-backend
+
 
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 # 3. ARRÊT
