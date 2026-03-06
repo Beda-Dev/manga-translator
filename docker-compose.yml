@@ -1,0 +1,94 @@
+# ═══════════════════════════════════════════════════════════════════════════════
+# Manga Translator — Docker Compose OPTIMISÉ
+# ═══════════════════════════════════════════════════════════════════════════════
+# 
+# DÉMARRAGE:
+#   Premier lancement (build) :  docker-compose up --build
+#   Lancements suivants       :  docker-compose up
+#   Stopper                   :  docker-compose down
+#   Rebuild forcé             :  docker-compose up --build --force-recreate
+#
+# ═══════════════════════════════════════════════════════════════════════════════
+
+version: '3.8'
+
+services:
+
+  # ── Backend FastAPI ────────────────────────────────────────────────────────────
+  backend:
+    build:
+      context: ./Backend
+      dockerfile: Dockerfile
+    container_name: manga-translator-backend
+    ports:
+      - "8000:8000"
+    environment:
+      - DEBUG=true
+      - OCR_ENGINE=easyocr
+      - TRANSLATION_ENGINE=marian
+      - TRANSLATION_TARGET_LANG=fr
+      - USE_SUPABASE=false
+      - SUPABASE_URL=${SUPABASE_URL:-}
+      - SUPABASE_KEY=${SUPABASE_KEY:-}
+      - SUPABASE_BUCKET=manga-translations
+      - MAX_PARALLEL_PAGES=2
+      - MAX_FILE_SIZE_MB=50
+      - UPLOAD_DIR=/tmp/manga_translator/uploads
+      - OUTPUT_DIR=/tmp/manga_translator/outputs
+      - TEMP_DIR=/tmp/manga_translator/temp
+      # ✅ Autoriser le frontend Docker ET le navigateur local
+      - ALLOWED_ORIGINS=["http://localhost:3000","http://frontend:3000"]
+    volumes:
+      # ✅ PAS de volume sur /app — évite d'écraser le code buildé
+      # Uniquement les fichiers temporaires et le cache des modèles IA
+      - manga_temp:/tmp/manga_translator
+      # ✅ Cache des modèles HuggingFace/EasyOCR — évite de retélécharger à chaque restart
+      - ai_models_cache:/app/.cache
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s  # Laisser le temps au premier téléchargement des modèles
+
+  # ── Frontend Next.js ──────────────────────────────────────────────────────────
+  frontend:
+    build:
+      context: ./Frontend
+      dockerfile: Dockerfile
+    container_name: manga-translator-frontend
+    ports:
+      - "3000:3000"
+    environment:
+      # ✅ CRUCIAL: dans Docker, le frontend appelle "backend" (nom du service)
+      # pas "localhost" (localhost = le container frontend lui-même)
+      - NEXT_PUBLIC_API_URL=http://localhost:8000
+      # Note: NEXT_PUBLIC_ est injecté au BUILD time dans Next.js
+      # Pour le navigateur du client, on utilise localhost:8000 (le port exposé)
+      - INTERNAL_API_URL=http://backend:8000  # Pour les Server Components Next.js
+      - NODE_ENV=development
+    # ✅ Ajout du volume pour node_modules (pnpm)
+    volumes:
+      - ./Frontend:/app
+      - frontend_node_modules:/app/node_modules
+    depends_on:
+      backend:
+        condition: service_healthy
+    restart: unless-stopped
+
+# ── Volumes ────────────────────────────────────────────────────────────────────
+volumes:
+  manga_temp:
+    driver: local
+  ai_models_cache:
+    # ✅ Cache persistant des modèles IA (HuggingFace + EasyOCR ~1.5GB)
+    # Survit aux docker-compose down / up → plus besoin de retélécharger
+    driver: local
+  frontend_node_modules:
+    driver: local
+
+# ── Network ────────────────────────────────────────────────────────────────────
+networks:
+  default:
+    name: manga-translator-network

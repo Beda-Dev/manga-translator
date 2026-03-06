@@ -1,0 +1,67 @@
+# # ═══════════════════════════════════════════════════════════════════════════════
+# # .gitignore — Manga Translator
+# # ═══════════════════════════════════════════════════════════════════════════════
+
+# # ── Docker (exclure tout Docker du repo) ──────────────────────────────────────
+# Dockerfile
+# Dockerfile.*
+# docker-compose.yml
+# docker-compose.*.yml
+# .dockerignore
+# **/.dockerignore
+
+# ── Python ────────────────────────────────────────────────────────────────────
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+venv/
+.venv/
+env/
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+*.log
+
+# ── Variables d'environnement (NE JAMAIS commiter les clés API) ───────────────
+.env
+.env.local
+.env.*.local
+!.env.example        
+
+# ── Modèles IA et caches (trop lourds pour Git) ───────────────────────────────
+.cache/
+*.pt
+*.onnx
+*.bin
+transformers_cache/
+Backend/.cache/
+
+# ── Fichiers temporaires du backend ───────────────────────────────────────────
+Backend/tmp/
+Backend/uploads/
+Backend/outputs/
+/tmp/
+
+# ── Node.js / Next.js ─────────────────────────────────────────────────────────
+node_modules/
+Frontend/node_modules/
+.next/
+Frontend/.next/
+Frontend/out/
+*.tsbuildinfo
+
+# ── OS ────────────────────────────────────────────────────────────────────────
+.DS_Store
+.DS_Store?
+Thumbs.db
+ehthumbs.db
+desktop.ini
+
+# ── IDE ───────────────────────────────────────────────────────────────────────
+.vscode/
+.idea/
+*.swp
+*.swo

@@ -1,0 +1,85 @@
+# ═══════════════════════════════════════════════════════════════════════════════
+# Manga Translator — .dockerignore
+# Exclure les fichiers inutiles de l'image Docker
+# ═══════════════════════════════════════════════════════════════════════════════
+
+# ── Git ───────────────────────────────────────────────────────────────────────
+.git
+.gitignore
+
+# ── Python ───────────────────────────────────────────────────────────────────
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+env/
+venv/
+.venv/
+pip-log.txt
+pip-delete-this-directory.txt
+.tox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+*.log
+.git
+.mypy_cache
+.pytest_cache
+.hypothesis
+
+# ── IDE ───────────────────────────────────────────────────────────────────────
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# ── OS ───────────────────────────────────────────────────────────────────────
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# ── Documentation ───────────────────────────────────────────────────────────────
+README.md
+docs/
+*.md
+
+# ── Tests ───────────────────────────────────────────────────────────────────
+tests/
+test_*.py
+*_test.py
+
+# ── Temporary files ───────────────────────────────────────────────────────────
+tmp/
+temp/
+uploads/
+outputs/
+*.tmp
+*.temp
+
+# ── Machine Learning Models ───────────────────────────────────────────────────
+models/
+.cache/
+transformers_cache/
+
+# ── Docker ───────────────────────────────────────────────────────────────────
+Dockerfile*
+docker-compose*
+.dockerignore
+
+# ── Environment ───────────────────────────────────────────────────────────────
+.env
+.env.local
+.env.*.local
+
+# ── Render deployment files ───────────────────────────────────────────────────
+render.yaml
+render-deployment.md

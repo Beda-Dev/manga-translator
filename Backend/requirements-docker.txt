@@ -1,0 +1,26 @@
+# requirements-docker.txt
+# ⚠️  torch, transformers, sentencepiece, sacremoses, easyocr
+#    sont installés DIRECTEMENT dans le Dockerfile (couches séparées)
+#    pour optimiser le cache Docker. Ne pas les remettre ici.
+
+# ── Framework ──────────────────────────────────────────────────────────────────
+fastapi==0.115.5
+uvicorn[standard]==0.32.1
+python-multipart==0.0.20
+pydantic==2.10.3
+pydantic-settings==2.7.0
+
+# ── HTTP ───────────────────────────────────────────────────────────────────────
+httpx==0.27.2
+
+# ── Image processing ───────────────────────────────────────────────────────────
+opencv-python-headless==4.10.0.84
+Pillow==11.0.0
+numpy==1.26.4
+
+# ── Formats de fichiers ────────────────────────────────────────────────────────
+pymupdf==1.25.1
+rarfile==4.2
+
+# ── Supabase (activé par défaut pour Render) ──────────────────────────────────
+supabase==2.10.0

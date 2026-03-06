@@ -1,0 +1,40 @@
+# ── Framework ──────────────────────────────────────────────────────────────────
+fastapi==0.115.5
+uvicorn[standard]==0.32.1
+python-multipart==0.0.20       # Upload de fichiers
+pydantic==2.10.3
+pydantic-settings==2.7.0
+
+# ── HTTP ───────────────────────────────────────────────────────────────────────
+httpx==0.27.2                  # Client HTTP async (compatible avec Supabase)
+
+# ── Image processing ───────────────────────────────────────────────────────────
+opencv-python-headless==4.10.0.84  # Inpainting, traitement d'images
+Pillow==11.0.0                     # Rendu du texte dans les bulles
+numpy==1.26.4
+
+# ── OCR (choisir selon votre moteur préféré) ───────────────────────────────────
+easyocr==1.7.2                 # OCR open source — recommandé pour BD
+# paddlepaddle==2.6.2          # PaddleOCR backend — décommenter si besoin
+# paddleocr==2.8.1             # PaddleOCR — décommenter si besoin
+# pytesseract==0.3.13          # Tesseract wrapper — nécessite tesseract-ocr installé
+# google-cloud-vision==3.7.4   # Google Vision — décommenter + clé API
+
+# ── Traduction ─────────────────────────────────────────────────────────────────
+transformers==4.46.3           # HuggingFace Transformers (MarianMT)
+torch==2.5.1                   # Backend PyTorch pour MarianMT (CPU)
+sentencepiece==0.2.0           # Tokenizer pour MarianMT
+sacremoses==0.1.1              # Normalisation pour MarianMT
+# deepl==1.20.0                # DeepL — décommenter + clé API
+
+# ── Formats de fichiers ────────────────────────────────────────────────────────
+pymupdf==1.25.1                # Extraction pages PDF (fitz)
+rarfile==4.2                   # Support CBR — nécessite unrar système
+
+# ── Supabase Storage ──────────────────────────────────────────────────────────
+supabase==2.10.0               # ✅ Requis pour Render.com (filesystem éphémère)
+
+# ── Dev / Tests ────────────────────────────────────────────────────────────────
+# pytest==8.3.4
+# pytest-asyncio==0.24.0
+# httpx==0.28.1                # Déjà inclus ci-dessus
