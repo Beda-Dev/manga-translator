@@ -20,7 +20,9 @@ from app.models.schemas import (
     FontOptions, OCREngine, OutputFormat, SourceLanguage,
     TranslateResponse, TranslationEngine, TranslationOptions,
 )
-from app.services.translation_pipeline import TranslationPipeline
+# On utilise la nouvelle version du pipeline (V2) pour de meilleures performances
+from app.services.translation_pipeline_v2 import TranslationPipelineV2
+# from app.services.translation_pipeline import TranslationPipeline
 
 logger = logging.getLogger(__name__)
 router = APIRouter()
@@ -155,7 +157,8 @@ async def _run_pipeline(
 ):
     """Lance le pipeline de traduction en arrière-plan."""
     try:
-        pipeline = TranslationPipeline(job_id=job_id, options=options)
+        # Utilisation du pipeline V2 avec les nouveaux services IA (Inpainting V2, Translation V2)
+        pipeline = TranslationPipelineV2(job_id=job_id, options=options)
         await pipeline.run(input_path, output_dir)
     except Exception as e:
         logger.error(f"❌ Pipeline {job_id} échoué: {e}", exc_info=True)
